@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "tron-test"
+version = "0.1.0"
+description = "Tron test"
+authors = ["kioharu"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "3.11.*"
+alembic = "1.14.1"
+fastapi = { extras = ["standard"], version = "0.115.7" }
+gunicorn = { extras = ["gevent"], version = "23.0.0" }
+pydantic = "2.11.7"
+pydantic-settings = "2.10.1"
+sqlalchemy = "2.0.37"
+asyncpg = "0.28.0"
+tronpy = "0.4.0"
+python-multipart = "0.0.20"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+isort = "*"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
+factory-boy = "*"
+faker = "*"
+aiosqlite = "*"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+atomic = true
+profile = "black"
+py_version = 311
+line_length = 88
+skip_gitignore = true
+multi_line_output = 3
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::sqlalchemy.exc.MovedIn20Warning",
+    "ignore::pydantic._internal._config.PydanticDeprecatedSince20"
+]
+
+[tool.coverage.run]
+omit = ["tests/*", "db/alembic/versions/*"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
