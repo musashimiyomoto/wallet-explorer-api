@@ -1,4 +1,4 @@
 from db.models.base import Base
-from db.models.wallet_request import WalletRequest
+from db.models.wallet import WalletRequest
 
 __all__ = ["Base", "WalletRequest"]

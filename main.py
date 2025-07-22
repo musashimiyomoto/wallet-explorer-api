@@ -1,20 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-from api.routers import (
-    admin,
-    auth,
-    category,
-    client,
-    delivery,
-    dish,
-    order,
-    schedule,
-    user,
+from api.routers import wallet
+
+app = FastAPI(
+    title="TRON Wallet API",
+    version="1.0.0",
+    description="API for getting information about TRON wallets",
 )
-
-app = FastAPI(title="Restoranchiki API")
 
 app.add_middleware(
     middleware_class=CORSMiddleware,
@@ -24,17 +17,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
-
-# Client
-app.include_router(router=auth.router)
-app.include_router(router=category.router)
-app.include_router(router=client.router)
-app.include_router(router=dish.router)
-app.include_router(router=order.router)
-app.include_router(router=schedule.router)
-app.include_router(router=user.router)
-app.include_router(router=delivery.router)
-
-# Admin
-app.include_router(router=admin.router)
+app.include_router(router=wallet.router)
