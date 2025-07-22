@@ -5,27 +5,21 @@ import pytest
 
 from enums.network import NetworkEnum
 from schemas.wallet import WalletInfo
-from providers.wallet import TronClientError
-from tests.factories import WalletRequestFactory
+from tests.factories import WalletFactory
 
 
-class TestWalletRequestAPI:
-    """Интеграционные тесты для API кошельков"""
-
+class TestWalletAPI:
     @pytest.fixture
     def mock_wallet_info(self):
-        """Мок данных о кошельке"""
         return WalletInfo(balance=Decimal("123.456789"), bandwidth=5000, energy=10000)
 
     @pytest.fixture
     def valid_tron_address(self):
-        """Валидный TRON адрес для тестов"""
         return "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 
     async def test_get_wallet_info_success(
         self, test_client, mock_wallet_info, valid_tron_address
     ):
-        """Тест успешного получения информации о кошельке"""
         with (
             patch(
                 "services.tron_client.tron_client.is_valid_address", return_value=True

@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routers import wallet
 
 app = FastAPI(
-    title="TRON Wallet API",
+    title="Wallet Explorer API",
     version="1.0.0",
-    description="API for getting information about TRON wallets",
+    description="API for getting information about wallets",
 )
 
 app.add_middleware(

@@ -3,8 +3,8 @@ from decimal import Decimal
 import pytest
 
 from enums.network import NetworkEnum
-from repositories.wallet import WalletRequestRepository
-from tests.factories import WalletRequestFactory
+from repositories.wallet import WalletRepository
+from tests.factories import WalletFactory
 
 
 class TestWalletRequestRepository:

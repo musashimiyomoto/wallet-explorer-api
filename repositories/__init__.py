@@ -1,3 +1,3 @@
-from repositories.wallet import WalletRequestRepository
+from repositories.wallet import WalletRepository
 
-__all__ = ["WalletRequestRepository"]
+__all__ = ["WalletRepository"]

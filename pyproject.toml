@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "tron-test"
+name = "wallet-explorer-api"
 version = "0.1.0"
-description = "Tron test"
+description = "Wallet Explorer API"
 authors = ["kioharu"]
 readme = "README.md"
 package-mode = false

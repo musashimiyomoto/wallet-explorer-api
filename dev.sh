@@ -157,19 +157,8 @@ run_tests() {
 build_docker() {
     print_header "DOCKER COMPOSE BUILD"
     
-    print_warning "Stopping existing containers..."
-    docker-compose down
-    
-    print_warning "Building images..."
-    if docker-compose build; then
-        print_success "Images built successfully"
-    else
-        print_error "Error building images"
-        return 1
-    fi
-    
     print_warning "Starting containers..."
-    if docker-compose up -d; then
+    if docker-compose up -d --build; then
         print_success "Containers started successfully"
         echo ""
         print_warning "Container status:"
@@ -177,7 +166,6 @@ build_docker() {
         echo ""
         print_success "API available at: http://localhost:5000"
         print_success "DB UI available at: http://localhost:8080"
-        print_success "Redis UI available at: http://localhost:5540"
     else
         print_error "Error starting containers"
         return 1

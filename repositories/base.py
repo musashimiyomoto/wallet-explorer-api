@@ -34,10 +34,10 @@ class BaseRepository(Generic[Model]):
     async def get_all(
         self,
         session: AsyncSession,
-        offset: int = 0,
-        limit: int = 10,
-        order_by: str = "created_at",
-        order_direction: SortDirectionEnum = SortDirectionEnum.DESC,
+        offset: int,
+        limit: int,
+        sort_by: str | None = None,
+        sort_direction: SortDirectionEnum | None = None,
         **filters,
     ) -> list[Model]:
         """Get all model instances with pagination and sorting.
@@ -46,27 +46,27 @@ class BaseRepository(Generic[Model]):
             session: The async session.
             offset: The offset of the first item to return.
             limit: The maximum number of items to return.
-            order_by: The field to sort by.
-            order_direction: The direction to sort by.
+            sort_by: The field to sort by.
+            sort_direction: The direction to sort by.
             **filters: The filters to apply to the query.
 
         Returns:
             The list of model instances.
 
         """
-        result = await session.execute(
-            statement=(
-                select(self.model)
-                .filter_by(**filters)
-                .order_by(
-                    desc(getattr(self.model, order_by))
-                    if order_direction == SortDirectionEnum.DESC
-                    else asc(getattr(self.model, order_by))
-                )
-                .offset(offset)
-                .limit(limit)
+        statement = select(self.model).filter_by(**filters)
+
+        if sort_by and sort_direction:
+            statement = statement.order_by(
+                desc(getattr(self.model, sort_by))
+                if sort_direction == SortDirectionEnum.DESC
+                else asc(getattr(self.model, sort_by))
             )
-        )
+
+        statement = statement.offset(offset).limit(limit)
+
+        result = await session.execute(statement=statement)
+
         return result.scalars().all()
 
     async def get_by(self, session: AsyncSession, **filters) -> Model | None:

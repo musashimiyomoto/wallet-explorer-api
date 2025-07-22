@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-# Restaurant Backend
+# Explorer API
 
 ## Prerequisites
 
