@@ -1,3 +1,4 @@
+from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -13,12 +14,12 @@ class TestGetWalletInfo(BaseTestCase):
     url = "/wallet"
     network = NetworkEnum.TRON
     address = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
-    balance = 100
+    balance = Decimal("100.123456")
     bandwidth = 1000
     energy = 2000
 
     @pytest.fixture
-    def _mock_explorer(self) -> None:
+    def _mock_explorer(self):
         with (
             patch(
                 "explorers.tron.TronExplorer.get_wallet_info"
@@ -35,6 +36,7 @@ class TestGetWalletInfo(BaseTestCase):
                 energy=self.energy,
             )
             mock_check_is_valid_address.return_value = None
+            yield
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("_mock_explorer")
@@ -49,7 +51,7 @@ class TestGetWalletInfo(BaseTestCase):
         data = response.json()
         assert data["network"] == self.network.value
         assert data["address"] == self.address
-        assert data["balance"] == self.balance
+        assert Decimal(data["balance"]) == self.balance
         assert data["bandwidth"] == self.bandwidth
         assert data["energy"] == self.energy
 
