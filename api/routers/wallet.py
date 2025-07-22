@@ -10,10 +10,10 @@ from schemas import (
 )
 from schemas.common import PaginatedResponse
 
-router = APIRouter(prefix="/wallet", tags=["wallet"])
+router = APIRouter(prefix="/wallet", tags=["Wallet"])
 
 
-@router.post(path="/", summary="Get wallet info")
+@router.post(path="", summary="Get wallet info")
 async def get_wallet_info(
     background_tasks: BackgroundTasks,
     data: WalletRequest = Body(default=..., description="Wallet request data"),

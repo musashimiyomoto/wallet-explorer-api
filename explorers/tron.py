@@ -17,9 +17,6 @@ class TronExplorer(BaseExplorer):
         )
 
     async def get_wallet_info(self, address: str) -> WalletInfo:
-        if not await self._client.is_address(value=address):
-            raise InvalidAddressException()
-
         account_info = await self._client.get_account(addr=address)
         account_resource = await self._client.get_account_resource(addr=address)
 
@@ -38,3 +35,10 @@ class TronExplorer(BaseExplorer):
                 - account_resource.get("EnergyUsed", 0),
             ),
         )
+
+    def check_is_valid_address(self, address: str) -> None:
+        try:
+            if not self._client.is_address(value=address):
+                raise InvalidAddressException()
+        except ValueError:
+            raise InvalidAddressException()

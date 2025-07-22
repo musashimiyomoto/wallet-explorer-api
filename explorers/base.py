@@ -14,6 +14,16 @@ class BaseExplorer(ABC):
         Returns:
             The wallet info.
 
+        """
+        pass
+
+    @abstractmethod
+    def check_is_valid_address(self, address: str) -> None:
+        """Check if the address is valid.
+
+        Args:
+            address: The address to check.
+
         Raises:
             InvalidAddressException: If the address is invalid.
 

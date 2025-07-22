@@ -28,6 +28,7 @@ class WalletUsecase:
             InvalidAddressException: If the address is invalid.
 
         """
+        self._explorer.check_is_valid_address(address=address)
         return await self._explorer.get_wallet_info(address=address)
 
     async def save_wallet_info(

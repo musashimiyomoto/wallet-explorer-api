@@ -1,5 +1,3 @@
-from .wallet import WalletRequestFactory
+from .wallet import WalletFactory
 
-__all__ = [
-    "WalletRequestFactory",
-]
+__all__ = ["WalletFactory"]
