@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 
-class ExplorerException(Exception):
+class ExplorerError(Exception):
     def __init__(
         self,
         message: str = "An error occurred",
@@ -12,7 +12,7 @@ class ExplorerException(Exception):
         self.status_code = status_code
 
 
-class InvalidAddressException(ExplorerException):
+class InvalidAddressError(ExplorerError):
     def __init__(
         self,
         message: str = "Invalid address",

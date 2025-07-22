@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, Query
 
 from enums.network import NetworkEnum
@@ -6,9 +8,9 @@ from usecases.wallet import WalletUsecase
 
 
 def get_network(
-    network: NetworkEnum = Query(
-        default=NetworkEnum.TRON, description="The network to use"
-    )
+    network: Annotated[
+        NetworkEnum, Query(description="The network to use")
+    ] = NetworkEnum.TRON,
 ) -> NetworkEnum:
     """Get the network parameter.
 
@@ -22,7 +24,9 @@ def get_network(
     return network
 
 
-def get_wallet_usecase(network: NetworkEnum = Depends(get_network)) -> WalletUsecase:
+def get_wallet_usecase(
+    network: Annotated[NetworkEnum, Depends(get_network)],
+) -> WalletUsecase:
     """Get the wallet usecase.
 
     Args:
@@ -35,6 +39,7 @@ def get_wallet_usecase(network: NetworkEnum = Depends(get_network)) -> WalletUse
     if network == NetworkEnum.TRON:
         explorer = TronExplorer()
     else:
-        raise ValueError(f"Network {network} not supported")
+        error_msg = f"Network {network} not supported"
+        raise ValueError(error_msg)
 
     return WalletUsecase(explorer=explorer)

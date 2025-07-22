@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.routers import wallet
-from exceptions.explorers import ExplorerException
+from exceptions.explorers import ExplorerError
 
 app = FastAPI(
     title="Wallet Explorer API",
@@ -20,10 +20,8 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(ExplorerException)
-async def explorer_exception_handler(
-    request: Request, exc: ExplorerException
-) -> JSONResponse:
+@app.exception_handler(ExplorerError)
+async def explorer_error_handler(request: Request, exc: ExplorerError) -> JSONResponse:
     return JSONResponse(content=exc.message, status_code=exc.status_code)
 
 

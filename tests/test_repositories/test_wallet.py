@@ -14,26 +14,33 @@ def repository() -> WalletRepository:
 
 
 class TestCreate:
+    network = NetworkEnum.TRON
+    address = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    balance = Decimal("100.123456")
+    bandwidth = 1000
+    energy = 2000
+
     @pytest.mark.asyncio
     async def test_success(
         self, test_session: AsyncSession, repository: WalletRepository
     ) -> None:
-        data = {
-            "network": NetworkEnum.TRON,
-            "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-            "balance": Decimal("100.123456"),
-            "bandwidth": 1000,
-            "energy": 2000,
-        }
-
-        wallet_request = await repository.create(session=test_session, data=data)
+        wallet_request = await repository.create(
+            session=test_session,
+            data={
+                "network": self.network,
+                "address": self.address,
+                "balance": self.balance,
+                "bandwidth": self.bandwidth,
+                "energy": self.energy,
+            },
+        )
 
         assert wallet_request.id is not None
-        assert wallet_request.network == NetworkEnum.TRON
-        assert wallet_request.address == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
-        assert wallet_request.balance == Decimal("100.123456")
-        assert wallet_request.bandwidth == 1000
-        assert wallet_request.energy == 2000
+        assert wallet_request.network == self.network
+        assert wallet_request.address == self.address
+        assert wallet_request.balance == self.balance
+        assert wallet_request.bandwidth == self.bandwidth
+        assert wallet_request.energy == self.energy
         assert wallet_request.created_at is not None
 
 

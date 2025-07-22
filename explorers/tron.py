@@ -4,7 +4,7 @@ from tronpy import AsyncTron
 from tronpy.providers import AsyncHTTPProvider
 
 from enums.network import NetworkEnum
-from exceptions.explorers import InvalidAddressException
+from exceptions.explorers import InvalidAddressError
 from explorers.base import BaseExplorer
 from schemas.wallet import WalletInfo
 from settings.explorer import explorer_settings
@@ -12,9 +12,12 @@ from settings.explorer import explorer_settings
 
 class TronExplorer(BaseExplorer):
     def __init__(self):
-        self._client = AsyncTron(
-            provider=AsyncHTTPProvider(api_key=explorer_settings.tron_api_key)
-        )
+        api_key = explorer_settings.tron_api_key
+        if api_key is None:
+            message = "TRON API key is required but not configured"
+            raise ValueError(message)
+
+        self._client = AsyncTron(provider=AsyncHTTPProvider(api_key=api_key))
 
     async def get_wallet_info(self, address: str) -> WalletInfo:
         account_info = await self._client.get_account(addr=address)
@@ -39,6 +42,6 @@ class TronExplorer(BaseExplorer):
     def check_is_valid_address(self, address: str) -> None:
         try:
             if not self._client.is_address(value=address):
-                raise InvalidAddressException()
-        except ValueError:
-            raise InvalidAddressException()
+                raise InvalidAddressError
+        except ValueError as err:
+            raise InvalidAddressError from err

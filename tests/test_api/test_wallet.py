@@ -1,5 +1,6 @@
 from decimal import Decimal
 from http import HTTPStatus
+from math import ceil
 from unittest.mock import patch
 
 import pytest
@@ -63,6 +64,7 @@ class TestGetWalletHistory(BaseTestCase):
     async def test_ok(self) -> None:
         limit = 10
         items_count = 15
+        pages = ceil(items_count / limit)
         [
             await WalletFactory.create_async(session=self.session)
             for _ in range(items_count)
@@ -76,6 +78,6 @@ class TestGetWalletHistory(BaseTestCase):
         assert data["count"] == items_count
         assert data["page"] == 1
         assert data["limit"] == limit
-        assert data["pages"] == 2
-        assert data["next"] == 2
+        assert data["pages"] == pages
+        assert data["next"] == pages
         assert data["previous"] is None
