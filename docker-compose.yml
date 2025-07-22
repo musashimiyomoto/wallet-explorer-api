@@ -9,7 +9,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "5000:5000"
+      - "8000:8000"
     command: [ "bash", "/docker-entrypoint.sh", "gunicorn", "main:app" ]
 
   db:

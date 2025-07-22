@@ -1,3 +1,3 @@
-from .wallet import WalletRequestUsecase
+from .wallet import WalletUsecase
 
-__all__ = ["WalletRequestUsecase"]
+__all__ = ["WalletUsecase"]

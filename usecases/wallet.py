@@ -3,12 +3,12 @@ import logging
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from enums.network import NetworkEnum
 from explorers.base import BaseExplorer
 from repositories import WalletRepository
 from schemas import (
     PaginatedResponse,
     SortingAndPaginationParams,
-    WalletRequest,
     WalletResponse,
 )
 
@@ -21,22 +21,22 @@ class WalletUsecase:
         self._explorer = explorer
 
     async def get_wallet_info(
-        self, session: AsyncSession, data: WalletRequest
+        self, session: AsyncSession, address: str, network: NetworkEnum
     ) -> WalletResponse:
-        if not self._explorer.is_valid_address(address=data.address):
+        if not self._explorer.is_valid_address(address=address):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid address: {data.address}",
+                detail=f"Invalid address: {address}",
             )
 
-        wallet_info = await self._explorer.get_wallet_info(address=data.address)
+        wallet_info = await self._explorer.get_wallet_info(address=address)
 
         return WalletResponse.model_validate(
             await self._wallet_repository.create(
                 session=session,
                 data={
-                    "address": data.address,
-                    "network": data.network,
+                    "address": address,
+                    "network": network,
                     "balance": wallet_info.balance,
                     "bandwidth": wallet_info.bandwidth,
                     "energy": wallet_info.energy,
@@ -44,7 +44,7 @@ class WalletUsecase:
             )
         )
 
-    async def get_paginated(
+    async def get_history(
         self, session: AsyncSession, data: SortingAndPaginationParams
     ) -> PaginatedResponse[WalletResponse]:
         return PaginatedResponse(

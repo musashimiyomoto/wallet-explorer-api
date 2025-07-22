@@ -1,15 +1,28 @@
-from fastapi import Query
+from fastapi import Depends, Query
 
 from enums.network import NetworkEnum
 from explorers import TronExplorer
 from usecases.wallet import WalletUsecase
 
 
-def get_wallet_usecase(
+def get_network(
     network: NetworkEnum = Query(
         default=NetworkEnum.TRON, description="The network to use"
     )
-) -> WalletUsecase:
+) -> NetworkEnum:
+    """Get the network parameter.
+
+    Args:
+        network: The network to use.
+
+    Returns:
+        The network.
+
+    """
+    return network
+
+
+def get_wallet_usecase(network: NetworkEnum = Depends(get_network)) -> WalletUsecase:
     """Get the wallet usecase.
 
     Args:

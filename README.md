@@ -63,7 +63,7 @@ docker-compose up --build
 ### Accessing Services
 
 After successful launch:
-- **API**: http://localhost:5000
+- **API**: http://localhost:8000
 - **DB UI**: http://localhost:8080
   - System: PostgreSQL
   - Server: db

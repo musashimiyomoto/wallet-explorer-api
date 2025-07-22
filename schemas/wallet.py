@@ -1,29 +1,13 @@
-import re
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, Field
 
-from constants.network import NETWORK_REGEX
 from enums.network import NetworkEnum
 
 
 class WalletRequest(BaseModel):
     address: str = Field(default=..., description="Wallet address")
-    network: NetworkEnum = Field(default=NetworkEnum.TRON, description="Network type")
-
-    @field_validator("address")
-    @classmethod
-    def validate_address(cls, value: str, info: ValidationInfo) -> str:
-        regex = NETWORK_REGEX.get(info.data.get("network"))
-
-        if not regex:
-            raise ValueError("Invalid network")
-
-        if not re.match(regex, value):
-            raise ValueError("Invalid address format")
-
-        return value
 
 
 class WalletInfo(BaseModel):

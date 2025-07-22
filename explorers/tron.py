@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from tronpy import AsyncTron
 from tronpy.exceptions import ApiError
+from tronpy.providers import AsyncHTTPProvider
 
 from explorers.base import BaseExplorer
 from schemas.wallet import WalletInfo
@@ -12,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 class TronExplorer(BaseExplorer):
     def __init__(self):
-        self._client = AsyncTron()
+        self._client = AsyncTron(
+            provider=AsyncHTTPProvider(api_key="3bc29956-e16f-4ca7-8903-a376186bbb86")
+        )
 
     async def get_wallet_info(self, address: str) -> WalletInfo:
         try:
