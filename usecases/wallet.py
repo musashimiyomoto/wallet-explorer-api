@@ -1,18 +1,13 @@
-import logging
-
-from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from enums.network import NetworkEnum
 from explorers.base import BaseExplorer
 from repositories import WalletRepository
 from schemas import (
     PaginatedResponse,
     SortingAndPaginationParams,
+    WalletInfo,
     WalletResponse,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class WalletUsecase:
@@ -20,33 +15,48 @@ class WalletUsecase:
         self._wallet_repository = WalletRepository()
         self._explorer = explorer
 
-    async def get_wallet_info(
-        self, session: AsyncSession, address: str, network: NetworkEnum
-    ) -> WalletResponse:
-        if not self._explorer.is_valid_address(address=address):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid address: {address}",
-            )
+    async def get_wallet_info(self, address: str) -> WalletInfo:
+        """Get wallet info from explorer.
 
-        wallet_info = await self._explorer.get_wallet_info(address=address)
+        Args:
+            address: The address of the wallet.
 
-        return WalletResponse.model_validate(
-            await self._wallet_repository.create(
-                session=session,
-                data={
-                    "address": address,
-                    "network": network,
-                    "balance": wallet_info.balance,
-                    "bandwidth": wallet_info.bandwidth,
-                    "energy": wallet_info.energy,
-                },
-            )
+        Returns:
+            The wallet info.
+
+        Raises:
+            InvalidAddressException: If the address is invalid.
+
+        """
+        return await self._explorer.get_wallet_info(address=address)
+
+    async def save_wallet_info(
+        self, session: AsyncSession, wallet_info: WalletInfo
+    ) -> None:
+        """Save wallet info to database.
+
+        Args:
+            session: The database session.
+            wallet_info: The wallet info.
+
+        """
+        await self._wallet_repository.create(
+            session=session, data=wallet_info.model_dump()
         )
 
     async def get_history(
         self, session: AsyncSession, data: SortingAndPaginationParams
     ) -> PaginatedResponse[WalletResponse]:
+        """Get wallet history from database.
+
+        Args:
+            session: The database session.
+            data: The sorting and pagination params.
+
+        Returns:
+            The wallet history.
+
+        """
         return PaginatedResponse(
             results=[
                 WalletResponse.model_validate(item)

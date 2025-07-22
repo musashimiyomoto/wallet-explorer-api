@@ -24,7 +24,6 @@ class Wallet(Base):
         CheckConstraint("balance >= 0", name="check_balance_positive"),
         CheckConstraint("bandwidth >= 0", name="check_bandwidth_positive"),
         CheckConstraint("energy >= 0", name="check_energy_positive"),
-        UniqueConstraint("network", "address", name="uq_network_address"),
     )
 
     id: Mapped[int] = mapped_column(

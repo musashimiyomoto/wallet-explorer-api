@@ -1,5 +1,5 @@
 from .common import PaginatedResponse, PaginationParams, SortingAndPaginationParams
-from .wallet import WalletRequest, WalletResponse
+from .wallet import WalletInfo, WalletRequest, WalletResponse
 
 __all__ = [
     "PaginationParams",
@@ -7,4 +7,5 @@ __all__ = [
     "PaginatedResponse",
     "WalletRequest",
     "WalletResponse",
+    "WalletInfo",
 ]

@@ -1,8 +1,9 @@
-import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from api.routers import wallet
+from exceptions.explorers import ExplorerException
 
 app = FastAPI(
     title="Wallet Explorer API",
@@ -17,5 +18,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(ExplorerException)
+async def explorer_exception_handler(
+    request: Request, exc: ExplorerException
+) -> JSONResponse:
+    return JSONResponse(content=exc.message, status_code=exc.status_code)
+
 
 app.include_router(router=wallet.router)

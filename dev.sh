@@ -156,6 +156,14 @@ run_tests() {
 
 build_docker() {
     print_header "DOCKER COMPOSE BUILD"
+
+    print_info "Stopping containers..."
+    if docker-compose down; then
+        print_success "Containers stopped successfully"
+    else
+        print_error "Error stopping containers"
+        return 1
+    fi
     
     print_warning "Starting containers..."
     if docker-compose up -d --build; then

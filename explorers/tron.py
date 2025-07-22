@@ -1,57 +1,40 @@
-import logging
 from decimal import Decimal
 
 from tronpy import AsyncTron
-from tronpy.exceptions import ApiError
 from tronpy.providers import AsyncHTTPProvider
 
+from enums.network import NetworkEnum
+from exceptions.explorers import InvalidAddressException
 from explorers.base import BaseExplorer
 from schemas.wallet import WalletInfo
-
-logger = logging.getLogger(__name__)
+from settings.explorer import explorer_settings
 
 
 class TronExplorer(BaseExplorer):
     def __init__(self):
         self._client = AsyncTron(
-            provider=AsyncHTTPProvider(api_key="3bc29956-e16f-4ca7-8903-a376186bbb86")
+            provider=AsyncHTTPProvider(api_key=explorer_settings.tron_api_key)
         )
 
     async def get_wallet_info(self, address: str) -> WalletInfo:
-        try:
-            account_info = await self._client.get_account(address)
+        if not await self._client.is_address(value=address):
+            raise InvalidAddressException()
 
-            balance_sun = account_info.get("balance", 0)
-            balance_trx = Decimal(balance_sun) / Decimal(1_000_000)
+        account_info = await self._client.get_account(addr=address)
+        account_resource = await self._client.get_account_resource(addr=address)
 
-            account_resource = await self._client.get_account_resource(address)
-
-            bandwidth = account_resource.get("freeNetUsed", 0)
-            bandwidth_limit = account_resource.get("freeNetLimit", 0)
-            available_bandwidth = max(0, bandwidth_limit - bandwidth)
-
-            energy_used = account_resource.get("EnergyUsed", 0)
-            energy_limit = account_resource.get("EnergyLimit", 0)
-            available_energy = max(0, energy_limit - energy_used)
-
-            logger.info(
-                f"Retrieved wallet info for {address}: "
-                f"balance={balance_trx} TRX, "
-                f"bandwidth={available_bandwidth}, "
-                f"energy={available_energy}"
-            )
-
-            return WalletInfo(
-                balance=balance_trx,
-                bandwidth=available_bandwidth,
-                energy=available_energy,
-            )
-        except ApiError as e:
-            logger.error(f"TRON API error for address {address}: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error getting wallet info for {address}: {e}")
-            raise
-
-    async def is_valid_address(self, address: str) -> bool:
-        return await self._client.is_address(address)
+        return WalletInfo(
+            network=NetworkEnum.TRON,
+            address=address,
+            balance=Decimal(account_info.get("balance", "0.0")) / Decimal(1_000_000),
+            bandwidth=max(
+                0,
+                account_resource.get("freeNetLimit", 0)
+                - account_resource.get("freeNetUsed", 0),
+            ),
+            energy=max(
+                0,
+                account_resource.get("EnergyLimit", 0)
+                - account_resource.get("EnergyUsed", 0),
+            ),
+        )

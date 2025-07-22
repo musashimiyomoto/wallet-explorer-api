@@ -54,7 +54,6 @@ def upgrade() -> None:
         sa.CheckConstraint("energy >= 0", name="check_energy_positive"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
-        sa.UniqueConstraint("network", "address", name="uq_network_address"),
     )
     op.create_index(op.f("ix_wallets_address"), "wallets", ["address"], unique=False)
     op.create_index(op.f("ix_wallets_network"), "wallets", ["network"], unique=False)
