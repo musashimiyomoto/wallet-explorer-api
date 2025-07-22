@@ -1,4 +1,4 @@
-from .wallet_request import WalletRequestFactory
+from .wallet import WalletRequestFactory
 
 __all__ = [
     "WalletRequestFactory",
