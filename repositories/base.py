@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums.sort import SortDirectionEnum
 
-Model = TypeVar("Model")
+Model = TypeVar("Model", bound=object)
 
 
 class BaseRepository(Generic[Model]):
@@ -67,7 +67,7 @@ class BaseRepository(Generic[Model]):
 
         result = await session.execute(statement=statement)
 
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_by(self, session: AsyncSession, **filters) -> Model | None:
         """Get a model instance by filters.
@@ -143,6 +143,7 @@ class BaseRepository(Generic[Model]):
 
         """
         result = await session.execute(
-            statement=select(func.count(self.model.id)).filter_by(**filters)
+            statement=select(func.count()).select_from(self.model).filter_by(**filters)
         )
-        return result.scalar()
+        count = result.scalar()
+        return count or 0

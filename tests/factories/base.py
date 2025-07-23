@@ -6,7 +6,7 @@ fake = Faker("en_US")
 
 
 class AsyncSQLAlchemyModelFactory(factory.alchemy.SQLAlchemyModelFactory):
-    class Meta:
+    class Meta:  # type: ignore[misc]
         abstract = True
         sqlalchemy_session_persistence = "commit"
 

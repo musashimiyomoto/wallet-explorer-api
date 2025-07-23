@@ -1,7 +1,7 @@
 import secrets
 from decimal import Decimal
 
-import factory
+from factory.declarations import LazyAttribute, LazyFunction
 
 from db.models.wallet import Wallet
 from enums.network import NetworkEnum
@@ -17,14 +17,14 @@ def generate_tron_address() -> str:
 
 
 class WalletFactory(AsyncSQLAlchemyModelFactory):
-    class Meta:
+    class Meta:  # type: ignore[misc]
         model = Wallet
 
     network = NetworkEnum.TRON
-    address = factory.LazyFunction(generate_tron_address)
+    address = LazyFunction(generate_tron_address)
 
-    balance = factory.LazyAttribute(
+    balance = LazyAttribute(
         lambda obj: Decimal(fake.random_int(min=0, max=1000000)) / Decimal(1000)
     )
-    bandwidth = factory.LazyAttribute(lambda obj: fake.random_int(min=0, max=100000))
-    energy = factory.LazyAttribute(lambda obj: fake.random_int(min=0, max=100000))
+    bandwidth = LazyAttribute(lambda obj: fake.random_int(min=0, max=100000))
+    energy = LazyAttribute(lambda obj: fake.random_int(min=0, max=100000))
