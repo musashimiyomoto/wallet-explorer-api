@@ -22,6 +22,10 @@
    ```
 3. Install dependencies:
    ```bash
+   # Using development script (recommended)
+   ./dev.sh install
+
+   # Or manually
    poetry install --with dev,test
    pre-commit install
    ```
@@ -34,18 +38,24 @@ The fastest way to get started is using our unified development script:
 # Make script executable (first time only)
 chmod +x dev.sh
 
-# Run full development cycle: format code, run tests, and build Docker
+# Run full development cycle: install dependencies, format code, check lint, run tests, and build Docker
 ./dev.sh
 
 # Or run specific operations:
-./dev.sh format  # Format code with isort and black
-./dev.sh test    # Run tests with pytest
-./dev.sh build   # Build and run Docker Compose
+./dev.sh install    # Install dependencies with Poetry
+./dev.sh format     # Format code with isort and black
+./dev.sh check      # Check code formatting and lint (ruff + pyright)
+./dev.sh test       # Run tests with pytest and coverage
+./dev.sh build      # Build and run Docker Compose
+
+# Get help with all available commands:
+./dev.sh help
 
 # Database migrations:
 ./dev.sh migrate generate "Add user table"   # Generate new migration
 ./dev.sh migrate upgrade                     # Apply all pending migrations
 ./dev.sh migrate downgrade                   # Rollback last migration
+./dev.sh migrate downgrade base              # Rollback to base
 ./dev.sh migrate history                     # Show migration history
 ./dev.sh migrate current                     # Show current migration
 ```
@@ -65,15 +75,13 @@ docker-compose up --build
 ### Accessing Services
 
 After successful launch:
-- **API**: http://localhost:5000
+- **API**: http://localhost:8000
 - **DB UI**: http://localhost:8080
   - System: PostgreSQL
   - Server: db
   - Username: postgres
   - Password: postgres
-  - Database: iqf
-- **Redis UI**: http://localhost:5540
-  - Connection string: redis:6379
+  - Database: explorer
 
 ### Docker Commands
 
@@ -117,24 +125,32 @@ The development script automatically handles environment switching for migration
 ./dev.sh migrate downgrade base
 ```
 
-### Code Formatting
+### Code Formatting & Quality Checks
 
 ```bash
-# Using development script
+# Format code (isort + black)
 ./dev.sh format
+
+# Check code formatting and lint (black --check, isort --check, ruff, pyright)
+./dev.sh check
 
 # Or manually
 poetry run isort .
 poetry run black .
+poetry run ruff check .
+poetry run pyright .
 ```
 
 ### Running Tests
 
 ```bash
-# Using development script
+# Using development script (includes coverage reports)
 ./dev.sh test
 
-# Or manually
+# Or manually with coverage
+poetry run pytest -v --cov=. --cov-report=term-missing --cov-report=xml
+
+# Simple test run
 poetry run pytest -v
 
 # Run specific test file
