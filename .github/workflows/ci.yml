@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  TRON_API_KEY: ${{ secrets.TRON_API_KEY }}
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
