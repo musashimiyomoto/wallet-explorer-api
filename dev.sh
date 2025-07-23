@@ -36,6 +36,16 @@ check_poetry() {
     fi
 }
 
+install_dependencies() {
+    print_header "INSTALLING DEPENDENCIES"
+    pip install --upgrade pip
+    pip install poetry
+    poetry shell
+    poetry install --with dev,test
+    poetry run pre-commit install
+    print_success "Dependencies installed successfully"
+}
+
 check_docker() {
     if ! command -v docker &> /dev/null; then
         print_error "Docker is not installed. Please install Docker to continue."
@@ -129,6 +139,13 @@ check_lint() {
         return 1
     fi
 
+    if poetry run pyright .; then
+        print_success "pyright completed successfully"
+    else
+        print_error "Error running pyright"
+        return 1
+    fi
+
     print_success "Code lint check completed"
 }
 
@@ -168,14 +185,6 @@ run_tests() {
 
 build_docker() {
     print_header "DOCKER COMPOSE BUILD"
-
-    print_info "Stopping containers..."
-    if docker-compose down; then
-        print_success "Containers stopped successfully"
-    else
-        print_error "Error stopping containers"
-        return 1
-    fi
 
     print_warning "Starting containers..."
     if docker-compose up -d --build; then
@@ -269,6 +278,7 @@ show_help() {
     echo "Usage: $0 [COMMAND] [OPTIONS]"
     echo ""
     echo "Development Commands:"
+    echo "  install             Install dependencies"
     echo "  format              Format code using isort and black"
     echo "  check               Check code formatting and lint"
     echo "  test                Run tests"
@@ -295,6 +305,9 @@ show_help() {
 
 main() {
     case "${1:-all}" in
+        install)
+            install_dependencies
+            ;;
         format)
             check_poetry
             format_code
@@ -318,7 +331,7 @@ main() {
 
             print_header "FULL DEVELOPMENT CYCLE"
 
-            if format_code && check_lint && run_tests && build_docker; then
+            if install_dependencies && format_code && check_lint && run_tests && build_docker; then
                 print_success "All operations completed successfully!"
             else
                 print_error "Some operations failed"

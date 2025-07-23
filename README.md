@@ -1,16 +1,30 @@
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
-[![CI/CD Pipeline](https://github.com/musashimiyomoto/restaurant-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/musashimiyomoto/restaurant-api/actions/workflows/ci.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![CI/CD Pipeline](https://github.com/iqf-protocol/iqf-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/iqf-protocol/iqf-backend/actions/workflows/ci.yml)
 
 ------------------------------------------------------------------------
 
-# Explorer API
+# Wallet Explorer API
 
 ## Prerequisites
 
 - **Docker & Docker Compose** - for containerized development
 - **Poetry** - for local development and dependency management
+
+## Setup
+
+1. Clone the repository
+2. Create environment file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Install dependencies:
+   ```bash
+   poetry install --with dev,test
+   pre-commit install
+   ```
 
 ## Quick Start
 
@@ -36,18 +50,6 @@ chmod +x dev.sh
 ./dev.sh migrate current                     # Show current migration
 ```
 
-## Setup
-
-1. Clone the repository
-2. Create environment file:
-   ```bash
-   cp .env.example .env
-   ```
-3. Install dependencies:
-   ```bash
-   poetry install --with dev,test
-   ```
-
 ## Docker Development (Recommended)
 
 ### Starting the Application
@@ -63,13 +65,13 @@ docker-compose up --build
 ### Accessing Services
 
 After successful launch:
-- **API**: http://localhost:8000
+- **API**: http://localhost:5000
 - **DB UI**: http://localhost:8080
   - System: PostgreSQL
   - Server: db
   - Username: postgres
   - Password: postgres
-  - Database: restoranchiki
+  - Database: iqf
 - **Redis UI**: http://localhost:5540
   - Connection string: redis:6379
 
