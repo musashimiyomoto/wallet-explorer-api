@@ -195,6 +195,7 @@ build_docker() {
         echo ""
         print_success "API available at: http://localhost:8000"
         print_success "DB UI available at: http://localhost:8080"
+        print_success "Broker UI available at: http://localhost:8222"
     else
         print_error "Error starting containers"
         return 1

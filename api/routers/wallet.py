@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends
+from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import db, wallet
+from enums.network import NetworkEnum
 from schemas import (
     SortingAndPaginationParams,
     WalletInfo,
@@ -11,21 +12,19 @@ from schemas import (
     WalletResponse,
 )
 from schemas.common import PaginatedResponse
+from tasks.wallet import save_wallet_info
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"])
 
 
 @router.post(path="", summary="Get wallet info")
 async def get_wallet_info(
-    background_tasks: BackgroundTasks,
+    network: Annotated[NetworkEnum, Depends(wallet.get_network)],
     data: Annotated[WalletRequest, Body(description="Wallet request data")],
-    session: Annotated[AsyncSession, Depends(db.get_session)],
     usecase: Annotated[wallet.WalletUsecase, Depends(wallet.get_wallet_usecase)],
 ) -> WalletInfo:
     wallet_info = await usecase.get_wallet_info(address=data.address)
-    background_tasks.add_task(
-        usecase.save_wallet_info, session=session, wallet_info=wallet_info
-    )
+    await save_wallet_info.kiq(network=network, wallet_info=wallet_info.model_dump())
     return wallet_info
 
 

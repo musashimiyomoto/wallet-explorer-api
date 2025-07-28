@@ -83,6 +83,7 @@ After successful launch:
   - Username: postgres
   - Password: postgres
   - Database: explorer
+- **Broker UI**: http://localhost:8222
 
 ### Docker Commands
 

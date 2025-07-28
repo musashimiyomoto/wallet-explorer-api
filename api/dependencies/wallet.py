@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, Query
 
 from enums.network import NetworkEnum
-from explorers import TronExplorer
+from explorers.utils import get_explorer
 from usecases.wallet import WalletUsecase
 
 
@@ -36,10 +36,4 @@ def get_wallet_usecase(
         The wallet usecase.
 
     """
-    if network == NetworkEnum.TRON:
-        explorer = TronExplorer()
-    else:
-        error_msg = f"Network {network} not supported"
-        raise ValueError(error_msg)
-
-    return WalletUsecase(explorer=explorer)
+    return WalletUsecase(explorer=get_explorer(network=network))
