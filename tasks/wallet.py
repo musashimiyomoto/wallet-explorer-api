@@ -11,6 +11,7 @@ async def save_wallet_info(network: NetworkEnum, wallet_info: dict) -> None:
     """Save wallet info to database.
 
     Args:
+        network: The network enum.
         wallet_info: The wallet info.
 
     """

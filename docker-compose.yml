@@ -14,6 +14,17 @@ services:
       - "8000:8000"
     command: [ "bash", "/docker-entrypoint.sh", "gunicorn", "main:app" ]
 
+  worker:
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_started
+    command: [ "taskiq", "worker", "broker:broker" ]
+
   db:
     image: postgres:14-alpine
     restart: always
@@ -31,7 +42,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${DB_LOGIN}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   db-ui:
     image: adminer
