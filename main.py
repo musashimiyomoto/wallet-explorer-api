@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -5,12 +8,34 @@ from fastapi.responses import JSONResponse
 from api.routers import wallet
 from broker import broker
 from exceptions.explorers import ExplorerError
+from settings.logging import setup_logging
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator:
+    """FastAPI lifespan.
+
+    Args:
+        app: FastAPI instance.
+
+    """
+    setup_logging()
+
+    if not broker.is_worker_process:
+        await broker.startup()
+
+    yield
+
+    if not broker.is_worker_process:
+        await broker.shutdown()
+
 
 app = FastAPI(
     title="Wallet Explorer API",
     version="1.0.0",
     description="API for getting information about wallets",
     redoc_url=None,
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -22,7 +47,7 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(ExplorerError)
+@app.exception_handler(exc_class_or_status_code=ExplorerError)
 async def explorer_error_handler(request: Request, exc: ExplorerError) -> JSONResponse:
     """Explorer error handler.
 
@@ -38,17 +63,3 @@ async def explorer_error_handler(request: Request, exc: ExplorerError) -> JSONRe
 
 
 app.include_router(router=wallet.router)
-
-
-async def startup_event() -> None:
-    """Startup event."""
-    await broker.startup()
-
-
-async def shutdown_event() -> None:
-    """Shutdown event."""
-    await broker.shutdown()
-
-
-app.add_event_handler(event_type="startup", func=startup_event)
-app.add_event_handler(event_type="shutdown", func=shutdown_event)
