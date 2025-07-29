@@ -1,5 +1,6 @@
 services:
   api:
+    &app
     build:
       context: .
     restart: always
@@ -9,21 +10,20 @@ services:
       db:
         condition: service_healthy
       broker:
-        condition: service_started
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     command: [ "bash", "/docker-entrypoint.sh", "gunicorn", "main:app" ]
 
   worker:
-    build:
-      context: .
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      api:
-        condition: service_started
-    command: [ "taskiq", "worker", "broker:broker" ]
+    <<: *app
+    ports: []
+    environment:
+      - TASKIQ_ADMIN_URL=${BROKER_UI_URL}
+      - TASKIQ_ADMIN_API_TOKEN=${BROKER_API_TOKEN}
+    command: [ "taskiq", "worker", "-fsd", "broker:broker", "-w", "1", "--max-fails", "1"]
 
   db:
     image: postgres:14-alpine
@@ -39,13 +39,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgres/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_LOGIN}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      test:
+        - "CMD"
+        - "sh"
+        - "-c"
+        - "pg_isready -U ${DB_LOGIN}"
+      interval: 2s
+      timeout: 3s
+      retries: 40
 
   db-ui:
-    image: adminer
+    image: adminer:5.3.0
     restart: always
     ports:
       - "8080:8080"
@@ -54,11 +58,60 @@ services:
         condition: service_healthy
 
   broker:
-    image: nats:2.11.6
+    image: nats:2.10-alpine
+    command:
+      - "-js"
+      - "-m"
+      - "8222"
+    healthcheck:
+      test:
+        - "CMD"
+        - "sh"
+        - "-c"
+        - "wget http://localhost:8222/healthz -q -O - | xargs | grep ok || exit 1"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  broker-ui:
+    image: ghcr.io/taskiq-python/taskiq-admin:latest
     restart: always
     ports:
-      - "4222:4222"
-      - "8222:8222"
+      - "3000:3000"
+    depends_on:
+      broker:
+        condition: service_healthy
+    environment:
+      - TASKIQ_ADMIN_API_TOKEN=${BROKER_API_TOKEN}
+    volumes:
+      - broker_data:/usr/database/
+
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    healthcheck:
+      test:
+        - "CMD"
+        - "redis-cli"
+        - "ping"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  redis-ui:
+    image: redis/redisinsight
+    restart: always
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  broker_data:
+  redis_data:

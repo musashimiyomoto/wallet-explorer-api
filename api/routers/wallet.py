@@ -24,7 +24,9 @@ async def get_wallet_info(
     usecase: Annotated[wallet.WalletUsecase, Depends(wallet.get_wallet_usecase)],
 ) -> WalletInfo:
     wallet_info = await usecase.get_wallet_info(address=data.address)
-    await save_wallet_info.kiq(network=network, wallet_info=wallet_info.model_dump())
+    await save_wallet_info.kiq(
+        network=network, wallet_info=wallet_info.model_dump(mode="json")
+    )
     return wallet_info
 
 
