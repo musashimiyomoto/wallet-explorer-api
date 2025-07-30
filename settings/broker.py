@@ -11,7 +11,7 @@ class BrokerSettings(BaseSettings):
     url: str = Field(default="nats://broker:4222", title="Broker URL")
     ui_url: str = Field(default="http://broker-ui:3000", title="Broker URL")
     default_queue: str = Field(default="default", title="Default queue")
-    api_token: str = Field(default=..., title="API Token")
+    api_token: str = Field(default="supersecret", title="API Token")
 
 
 broker_settings = BrokerSettings()
