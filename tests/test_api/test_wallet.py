@@ -1,7 +1,8 @@
 from decimal import Decimal
 from http import HTTPStatus
 from math import ceil
-from unittest.mock import patch
+from typing import Generator
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -39,9 +40,14 @@ class TestGetWalletInfo(BaseTestCase):
             mock_check_is_valid_address.return_value = None
             yield
 
+    @pytest.fixture
+    def mock_save_wallet_info_task(self) -> Generator[MagicMock, None, None]:
+        with patch("api.routers.wallet.save_wallet_info.kiq") as mock_kiq:
+            yield mock_kiq
+
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("_mock_explorer")
-    async def test_ok(self) -> None:
+    async def test_ok(self, mock_save_wallet_info_task: MagicMock) -> None:
         response = await self.client.post(
             url=self.url,
             params={"network": self.network.value},
@@ -55,6 +61,7 @@ class TestGetWalletInfo(BaseTestCase):
         assert Decimal(data["balance"]) == self.balance
         assert data["bandwidth"] == self.bandwidth
         assert data["energy"] == self.energy
+        mock_save_wallet_info_task.assert_called_once()
 
 
 class TestGetWalletHistory(BaseTestCase):
