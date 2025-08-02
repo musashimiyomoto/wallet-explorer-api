@@ -28,7 +28,7 @@ repos:
       - id: poetry-check
       - id: poetry-lock
       - id: poetry-install
-        args: ["--with", "dev,tests"]
+        args: ["--with", "dev,test"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
