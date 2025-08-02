@@ -309,6 +309,7 @@ main() {
     case "${1:-all}" in
         install)
             install_dependencies
+            check_poetry
             ;;
         format)
             check_poetry
